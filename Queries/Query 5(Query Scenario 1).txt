@@ -1,0 +1,98 @@
+//Find hosts that had almost stable memory usage during a specific time interval. For these hosts, 
+//calculate the network packets that they received during the aforementioned time interval and order
+//them according to memory usage. 
+
+
+//QuestDB:
+
+SELECT 
+	first.hostname, 
+	total_packets_recv 
+FROM
+(
+	SELECT hostname, maximum,minimum 
+	FROM
+	(
+		select 
+			hostname, 
+			max(used_percent) 
+				as maximum, 
+			min(used_percent) 
+				as minimum, 
+			max(os) 
+				as OS 
+		from mem
+		WHERE 
+			timestamp>='2016-01-01T00:00:00.000000Z' 
+			AND 
+			timestamp<='2016-02-27T00:00:00.000000Z' 
+		GROUP BY hostname
+	)
+WHERE maximum<=1.1*minimum
+) as first
+JOIN 
+(
+SELECT 
+	hostname, 
+	sum(packets_recv) 
+		as total_packets_recv 
+	FROM 
+		net 
+WHERE 
+	timestamp>='2016-01-01T00:00:00.000000Z' 
+	AND 
+	timestamp<='2016-02-27T00:00:00.000000Z' 
+GROUP BY hostname
+) as second 
+ON 
+	first.hostname=second.hostname
+ORDER BY 
+	first.maximum DESC
+
+//CrateDB:
+
+SELECT 
+	one.tags['hostname'], 
+	total_packets_recv  
+FROM
+(
+	SELECT tags['hostname'], maximum,minimum 
+	FROM
+	(
+		select 
+			tags['hostname'], 
+			max(used_percent) 
+				as maximum, 
+			min(used_percent) 
+				as minimum, 
+			max(tags['os']) 
+				as OS 
+		from benchmark.mem
+		WHERE 
+			ts>='2016-01-01T00:00:00.000000Z' 
+			AND 
+		ts<='2016-02-27T00:00:00.000000Z' 
+		GROUP BY tags['hostname']
+	) as nam
+	WHERE 
+		maximum<=1.1*minimum
+) as one
+JOIN 
+(
+	SELECT 
+		tags['hostname'], 
+		sum(packets_recv) 
+			as total_packets_recv 
+		FROM 
+			benchmark.net 
+		WHERE 
+			ts>='2016-01-01T00:00:00.000000Z' 
+			AND 
+			ts<='2016-02-27T00:00:00.000000Z' 
+		GROUP BY tags['hostname']
+) as two 
+ON 
+	one.tags['hostname']=two.tags['hostname']
+ORDER BY 
+	one.maximum DESC 
+LIMIT 100000;

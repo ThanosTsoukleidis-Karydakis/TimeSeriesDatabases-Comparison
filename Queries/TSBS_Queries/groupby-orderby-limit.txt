@@ -1,0 +1,21 @@
+//CRATEDB
+
+SELECT
+	date_trunc('minute', ts) as minute,
+	max(usage_user)
+FROM 
+	cpu
+WHERE ts < 1453635272856
+GROUP BY minute
+ORDER BY minute DESC
+LIMIT 5
+
+//QUESTDB
+
+SELECT 
+	timestamp AS minute,
+	max(usage_user)
+FROM cpu
+WHERE timestamp < '2016-01-24T11:34:32Z'
+SAMPLE BY 1m
+LIMIT 5

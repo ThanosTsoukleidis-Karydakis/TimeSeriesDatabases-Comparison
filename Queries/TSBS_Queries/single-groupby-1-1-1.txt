@@ -1,0 +1,26 @@
+//CRATEDB
+
+SELECT
+	date_trunc('minute', ts) as minute,
+	max(usage_user) AS max_usage_user
+FROM 
+	cpu
+WHERE
+	 tags['hostname'] IN ('host_1')
+	AND ts >= 1453521384428
+	AND ts < 1453524984428
+GROUP BY minute
+ORDER BY minute ASC
+
+//QUESTDB
+
+SELECT 
+	timestamp,
+	max(usage_user) AS max_usage_user
+FROM 
+	cpu
+WHERE 
+	hostname IN ('host_1')
+	AND timestamp >= '2016-01-23T03:56:24Z'
+	AND timestamp < '2016-01-23T04:56:24Z'
+SAMPLE BY 1m

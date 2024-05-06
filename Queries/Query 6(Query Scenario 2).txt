@@ -1,0 +1,90 @@
+//Find the hosts that achieved a memory usage percentage that is at least 10 times bigger than their cpu usage
+//at a specific point in time and for that particular timestamp calculate the number of context switches performed
+//by these hosts. 
+
+//QuestDB:
+
+
+SELECT 
+	first.hostname, 
+	first.timestamp, 
+	first.usage_user,
+	second.used_percent ,
+	k.context_switches 
+FROM 
+(
+	SELECT 
+		hostname,
+		usage_user, 
+		timestamp 
+	FROM 
+		cpu
+	WHERE 
+		usage_user>0 
+	LIMIT 10000
+) as first
+JOIN
+(
+	SELECT 
+		hostname,
+		used_percent,
+		timestamp 
+	FROM 
+		mem 
+) as second
+ON 
+	first.hostname=second.hostname 
+	AND 
+	first.timestamp=second.timestamp 
+	AND 
+	second.used_percent>=10*first.usage_user
+INNER JOIN 
+	kernel as k 
+ON 
+	second.hostname=k.hostname 
+	AND 
+	k.timestamp=second.timestamp
+
+
+//CrateDB:
+
+
+SELECT 
+	one.tags['hostname'], 
+	one.ts, 
+	one.usage_user,
+	two.used_percent ,
+	k.context_switches 
+FROM 
+(
+	SELECT 
+		tags['hostname'],
+		usage_user, 
+		ts 
+	FROM 
+		benchmark.cpu 
+	WHERE 
+		usage_user>0 
+	LIMIT 10000
+) as one
+JOIN
+(
+	SELECT 
+		tags['hostname'],
+		used_percent,
+		ts 
+	FROM 
+		benchmark.mem 
+	LIMIT 10000
+) as two
+ON 
+	one.tags['hostname']=two.tags['hostname'] 
+	AND 
+	one.ts=two.ts 
+	AND two.used_percent>=10*one.usage_user
+INNER JOIN 
+	benchmark.kernel as k 
+ON 
+	two.tags['hostname']=k.tags['hostname'] 
+AND 
+	k.ts=two.ts

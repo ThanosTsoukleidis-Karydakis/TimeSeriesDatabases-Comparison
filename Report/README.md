@@ -1,0 +1,1 @@
+In this directory, one can find our final report (report.pdf) of the project, alongside its corresponding Latex code (you have to select 'View raw' in order to download the .zip file that contains the Latex Project).

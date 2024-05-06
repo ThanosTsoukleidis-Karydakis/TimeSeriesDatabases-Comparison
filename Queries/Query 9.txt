@@ -1,0 +1,10 @@
+//A query using a window function: For each host, find the 3 largest memory usages and rank them and find the timestamps during which these
+//usages where achieved. 
+
+//QuestDB:
+
+SELECT a.hostname, a.used_percent,timestamp,a.ranking FROM (SELECT hostname as hostname, used_percent,timestamp,ROW_NUMBER() OVER (PARTITION BY hostname ORDER BY used_percent DESC) AS ranking FROM mem)AS a WHERE a.ranking<4 ORDER BY a.hostname,ranking ASC
+
+//CrateDB:
+
+SELECT a.hostname, a.used_percent,ts,a.ranking FROM (SELECT tags['hostname'] as hostname, used_percent,ts,ROW_NUMBER() OVER (PARTITION BY tags['hostname'] ORDER BY used_percent DESC) AS ranking FROM benchmark.mem)As a WHERE a.ranking<4 ORDER BY a.hostname,ranking ASC

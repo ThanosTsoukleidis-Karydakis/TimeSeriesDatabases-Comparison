@@ -1,0 +1,28 @@
+//Range query with a time range of 1 month but with 15 days from January and 15 days from February
+
+//QuestDB:
+
+SELECT 
+	hostname, 
+	timestamp, 
+	usage_user
+FROM 
+	cpu
+WHERE 
+	timestamp<'2016-02-15T00:00:00.000000Z' 
+	and 
+	timestamp>='2016-01-15T00:00:00.000000Z'
+
+//CrateDB:
+
+SELECT 
+	tags['hostname'], 
+	ts, 
+	usage_user
+FROM 
+	benchmark.cpu
+WHERE 
+	ts<'2016-02-15T00:00:00.000000Z' 
+	and 
+	ts>='2016-01-15T00:00:00.000000Z' 
+limit 100000;

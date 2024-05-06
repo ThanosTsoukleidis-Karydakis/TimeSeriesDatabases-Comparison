@@ -1,0 +1,34 @@
+//CRATEDB
+
+SELECT
+	date_trunc('hour', ts) AS hour,
+	mean(usage_user) AS mean_usage_user, 
+	mean(usage_system) AS mean_usage_system, 
+	mean(usage_idle) AS mean_usage_idle, 
+	mean(usage_nice) AS mean_usage_nice, 
+	mean(usage_iowait) AS mean_usage_iowait
+FROM 
+	cpu
+WHERE 
+	ts >= 1455759268856
+	AND ts < 1455802468856
+GROUP BY hour, tags['hostname']
+ORDER BY hour
+
+//QUESTDB
+
+SELECT 
+	timestamp, 
+	hostname,
+	avg(usage_user) AS avg_usage_user, 
+	avg(usage_system) AS avg_usage_system,
+	 avg(usage_idle) AS avg_usage_idle, 
+	 avg(usage_nice) AS avg_usage_nice, 
+	 avg(usage_iowait) AS avg_usage_iowait
+FROM 
+	cpu
+WHERE 
+	timestamp >= '2016-02-18T01:34:28Z'
+	AND timestamp < '2016-02-18T13:34:28Z'
+SAMPLE BY 1h
+GROUP BY timestamp, hostname

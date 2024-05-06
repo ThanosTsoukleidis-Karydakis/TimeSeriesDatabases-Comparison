@@ -1,0 +1,27 @@
+//Range query with a time range of 1 month
+
+
+//QUESTDB
+
+SELECT
+  hostname,
+  timestamp,
+  usage_user
+FROM
+  cpu
+WHERE
+  timestamp in ’2016-02’
+
+//CRATEDB
+
+SELECT
+  tags[’hostname’],
+  ts,
+  usage_user
+FROM
+  benchmark.cpu
+WHERE
+  ts<’2016-03-01T00:00:00.000000Z’
+  and
+  ts>=’2016-02-01T00:00:00.000000Z’
+limit 100000;

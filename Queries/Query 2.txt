@@ -1,0 +1,35 @@
+//ASOF JOIN of two tables (JOIN on timestamp column with temporally similar timestamps being thought of as equal)
+
+
+//QuestDB:
+
+SELECT 
+	c.usage_user usage_user, 
+	d.used_percent
+FROM 
+	cpu as c
+ASOF JOIN disk as d;
+
+//CrateDB:
+
+SELECT 
+	c.usage_user usage_user, 
+	a.used_percent
+FROM 
+	(SELECT * FROM benchmark.cpu LIMIT 10000) 
+		as c
+JOIN (
+	SELECT
+		ts,
+		tags['hostname'],
+		used_percent
+	FROM
+	(SELECT * FROM benchmark.disk LIMIT 10000)
+		as d
+) a
+ON 
+	c.ts >= a.ts 
+	and 
+	c.tags['hostname']=a.tags['hostname']
+ORDER BY 
+	c.ts, a.ts DESC;

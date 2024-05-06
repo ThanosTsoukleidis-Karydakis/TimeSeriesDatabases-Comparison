@@ -1,0 +1,13 @@
+//Point query that filters according to one particular timestamp
+
+//QuestDB:
+
+SELECT hostname, requests
+FROM nginx
+WHERE timestamp='2016-01-18T17:42:00.000000Z';
+
+//CrateDB:
+
+SELECT tags['hostname'], requests
+FROM benchmark.nginx
+WHERE ts='2016-01-18T17:42:00.000000Z'

@@ -1,0 +1,10 @@
+//Simple SELECT query, showing the first 100000 rows of table nginx
+
+//QUESTDB: 
+
+SELECT * FROM nginx LIMIT 100000
+
+//CRATEDB:
+
+SELECT * FROM benchmark.nginx
+LIMIT 100000

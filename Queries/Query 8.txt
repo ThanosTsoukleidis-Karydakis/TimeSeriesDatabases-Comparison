@@ -1,0 +1,13 @@
+//A simple aggregation (max) and a grouping of the results
+
+//QuestDB:
+
+SELECT hostname, max(used_percent) as maxUsedPer
+FROM disk
+GROUP BY hostname;
+
+//CrateDB:
+
+SELECT tags['hostname'], max(used_percent) as maxUsedPer
+FROM benchmark.disk
+GROUP BY tags['hostname'];
